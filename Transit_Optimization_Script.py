@@ -1,11 +1,9 @@
 import pandas as pd
 import numpy as np
-import sys
-sys.path.append("D:\IIT KGP\Thesis\scheduling\thesis final asish-20211123T065609Z-001\ga optimization\ga.py")
-import ga as ga
-import scipy as scipy
+from Genetic_algo import cal_pop_fitness, select_mating_pool, crossover, mutation
+import scipy 
 import scipy.stats
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 import datetime as dt
 
 pd.set_option('display.max_colwidth', None)
@@ -49,143 +47,68 @@ hrinperiod=1                # Length of a period, value means no of hours inn
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 #                                                           1.1.1 FREQUENCY CALCULATION  (based on Max passengers load in period) GARIA AIRPORT
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
-passengerarrivalrd = pd.read_csv(r"D:\S21 Data\Database for timetable prediction\Passenger_arrival_DN.csv").set_index('Passenger arrival')
-#print(passengerarrivalrd)
-                    # to print top 5 value: print(passengerarrival.head())
-                    # to print max value of each column: print(passengerarrival.max())
-                    #print(passengerarrivalrd)
-max_pass_periodrd = passengerarrivalrd.max(axis=1,skipna=False)   # to print max value in a row, row wise i.e. max passengers in a period
-#print(passengerarrivalrd)
-                                                     # to print a row of maximum value in a particular column print(passengerarrival[passengerarrival['Raipur']==passengerarrival['Raipur'].max()])
-#print(max_pass_periodrd)
-freqrd =(np.ceil(max_pass_periodrd/(dob*hrinperiod)))        #Frequency is bus required for maximum passengers in an hour (1period =4)
-#print(freqrd)
-freqrd[freqrd<frequencydefault] = frequencydefault        # Minimum Desire bus frequency is 2, should not be less that 2
-#print(freqrd)
-headwayrd1=(1/freqrd)*60
-infreqrd1= pd.DataFrame({'Time Period':freqrd.index, 'Initial Frequency':freqrd.values, 'Initial Headway':headwayrd1.values}).set_index('Time Period')      ############impo ########### , 'Initial Headway':headwayrd1.values
-#print(f'\nHeadway determined by Max passeneger load in each period in Raipur to Durg is : \n',infreqrd1)     #FINAL PRINT
+if __name__ == "__main__":
+    passengerarrivalrd = pd.read_csv("data/Passenger_arrival_DN.csv").set_index('Passenger arrival')
+    #print(passengerarrivalrd)
+                        # to print top 5 value: print(passengerarrival.head())
+                        # to print max value of each column: print(passengerarrival.max())
+                        #print(passengerarrivalrd)
+    max_pass_periodrd = passengerarrivalrd.max(axis=1,skipna=False)   # to print max value in a row, row wise i.e. max passengers in a period
+    #print(passengerarrivalrd)
+                                                        # to print a row of maximum value in a particular column print(passengerarrival[passengerarrival['Raipur']==passengerarrival['Raipur'].max()])
+    #print(max_pass_periodrd)
+    freqrd =(np.ceil(max_pass_periodrd/(dob*hrinperiod)))        #Frequency is bus required for maximum passengers in an hour (1period =4)
+    #print(freqrd)
+    freqrd[freqrd<frequencydefault] = frequencydefault        # Minimum Desire bus frequency is 2, should not be less that 2
+    #print(freqrd)
+    headwayrd1=(1/freqrd)*60
+    infreqrd1= pd.DataFrame({'Time Period':freqrd.index, 'Initial Frequency':freqrd.values, 'Initial Headway':headwayrd1.values}).set_index('Time Period')      ############impo ########### , 'Initial Headway':headwayrd1.values
+    #print(f'\nHeadway determined by Max passeneger load in each period in Raipur to Durg is : \n',infreqrd1)     #FINAL PRINT
 
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           1.1.2 FREQUENCY CALCULATION 2  (based on load profile across stops)  GARIA AIRPORT
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-distancerd= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\distanceDN.csv").set_index('Distance')
-#print(distancerd)
-Lrd= distancerd.sum(axis = 1, skipna = True).values   # defined Total Distance depot ot depot
-#print(Lrd)
-Lrd= np.ceil(float(np.asarray(Lrd)))   # converts Array value to Float value with ceiling
-#print(Lrd)
-#max_pass_periodrd = pd.DataFrame({'Time Period':max_pass_periodrd.index, 'Max Passenger Load':freqrd.values}).set_index('Time Period')    #making Series to Dataframe
-                                                                   ### Not Required      passengerarrivalrd.apply(lambda x: x.max() - x, axis=1)
-#####max_pass_periodrd['passenger lost']= max_pass_periodrd['Max Passenger Load'] - passengerarrivalrd.iloc[2]
-passengerkilometerrd = passengerarrivalrd.mul(distancerd.values, axis=1)      #passengerkilometerrd is no of passenger traveling distance
-#print(f'\nStop to stop distance : \n',distancerd)
-#print(f'\nPassenger kilometer (period) : \n',passengerkilometerrd)
-asasrd= np.ceil(passengerkilometerrd.sum(axis = 1, skipna= True))
-#print(asasrd)
-passkmrd= passengerkilometerrd/(dob*Lrd*hrinperiod)   #passenegr load kilometer required / desired  capacity of bus kilometer available
-passkmrd= np.ceil(passkmrd.sum(axis = 1, skipna= True))   #Sum value of row in row wise
-#print(passkmrd)                                                                                                          # IMP CODE   to round decimal point       passkmrd=passkmrd.round(decimals=1)
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           1.1.2 FREQUENCY CALCULATION 2  (based on load profile across stops)  GARIA AIRPORT
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    distancerd= pd.read_csv("data/distanceDN.csv").set_index('Distance')
+    #print(distancerd)
+    Lrd= distancerd.sum(axis = 1, skipna = True).values   # defined Total Distance depot ot depot
+    #print(Lrd)
+    Lrd= np.ceil(float(np.asarray(Lrd)))   # converts Array value to Float value with ceiling
+    #print(Lrd)
+    #max_pass_periodrd = pd.DataFrame({'Time Period':max_pass_periodrd.index, 'Max Passenger Load':freqrd.values}).set_index('Time Period')    #making Series to Dataframe
+                                                                    ### Not Required      passengerarrivalrd.apply(lambda x: x.max() - x, axis=1)
+    #####max_pass_periodrd['passenger lost']= max_pass_periodrd['Max Passenger Load'] - passengerarrivalrd.iloc[2]
+    passengerkilometerrd = passengerarrivalrd.mul(distancerd.values, axis=1)      #passengerkilometerrd is no of passenger traveling distance
+    #print(f'\nStop to stop distance : \n',distancerd)
+    #print(f'\nPassenger kilometer (period) : \n',passengerkilometerrd)
+    asasrd= np.ceil(passengerkilometerrd.sum(axis = 1, skipna= True))
+    #print(asasrd)
+    passkmrd= passengerkilometerrd/(dob*Lrd*hrinperiod)   #passenegr load kilometer required / desired  capacity of bus kilometer available
+    passkmrd= np.ceil(passkmrd.sum(axis = 1, skipna= True))   #Sum value of row in row wise
+    #print(passkmrd)                                                                                                          # IMP CODE   to round decimal point       passkmrd=passkmrd.round(decimals=1)
 
-maxcaprd= max_pass_periodrd/(cob*hrinperiod)
-maxcaprd= np.ceil(maxcaprd)
-#print(maxcaprd)
-freqrd2= pd.DataFrame({'Time Period':freqrd.index,'passenger kilometer': passkmrd.values, 'Maximum Capacity':maxcaprd, 'Default Frequency': frequencydefault}).set_index('Time Period')   #matric of frequency by maximum passenger kilometer, maximum capacity and defalult frequency
-#print(freqrd2)
+    maxcaprd= max_pass_periodrd/(cob*hrinperiod)
+    maxcaprd= np.ceil(maxcaprd)
+    #print(maxcaprd)
+    freqrd2= pd.DataFrame({'Time Period':freqrd.index,'passenger kilometer': passkmrd.values, 'Maximum Capacity':maxcaprd, 'Default Frequency': frequencydefault}).set_index('Time Period')   #matric of frequency by maximum passenger kilometer, maximum capacity and defalult frequency
+    #print(freqrd2)
 
-freqrd2 = freqrd2.max(axis=1,skipna=False)
-#print(freqrd2)
-headwayrd2=(1/freqrd2)*(60)
-infreqrd2= pd.DataFrame({'Time Period':freqrd2.index, 'Initial Frequency2':freqrd2.values, 'Initial Headway2':headwayrd2.values}).set_index('Time Period')
+    freqrd2 = freqrd2.max(axis=1,skipna=False)
+    #print(freqrd2)
+    headwayrd2=(1/freqrd2)*(60)
+    infreqrd2= pd.DataFrame({'Time Period':freqrd2.index, 'Initial Frequency2':freqrd2.values, 'Initial Headway2':headwayrd2.values}).set_index('Time Period')
 
-print(f'\n----------------------------------------------------------------------------\n'
-      f'Frequency and Headway determined by Ride Check Method in Bag Bazaar to Garia is :'
-      f'\n----------------------------------------------------------------------------\n',infreqrd2)  #FINAL PRINT
-
-
-
-
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                                    1.1.3 FREQUENCY METHODOLOGY GARIA AIRPORT
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------
-frequencyrd =freqrd2.values      #freqrd
-headwayrd= headwayrd2.values     #headwayrd1
+    print(f'\n----------------------------------------------------------------------------\n'
+        f'Frequency and Headway determined by Ride Check Method in Bag Bazaar to Garia is :'
+        f'\n----------------------------------------------------------------------------\n',infreqrd2)  #FINAL PRINT
 
 
 
 
-
-
-
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           1.2.1 FREQUENCY CALCULATION  (based on Max passengers load in period)  AIRPORT GARIA
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-passengerarrivaldr = pd.read_csv(r"D:\S21 Data\Database for timetable prediction\Passenger_arrival_UP.csv").set_index('Passenger arrival')
-#print(passengerarrivaldr)
-                    # to print top 5 value: print(passengerarrival.head())
-                    # to print max value of each column: print(passengerarrival.max())
-                    #print(passengerarrivaldr)
-max_pass_perioddr = passengerarrivaldr.max(axis=1,skipna=False)   # to print max value in a row, row wise i.e. max passengers in a period
-#print(passengerarrivaldr)
-                                                     # to print a row of maximum value in a particular column print(passengerarrival[passengerarrival['Raipur']==passengerarrival['Raipur'].max()])
-#print(max_pass_perioddr)
-freqdr =(np.ceil(max_pass_perioddr/(dob*hrinperiod)))        #Frequency is bus required for maximum passengers in an hour (1period =4)
-#print(freqdr)
-freqdr[freqdr<frequencydefault] = frequencydefault        # Minimum Desire bus frequency is 2, should not be less that 2
-#print(freqdr)
-headwaydr1=(1/freqdr)*60
-infreqdr1= pd.DataFrame({'Time Period':freqdr.index, 'Initial Frequency':freqdr.values, 'Initial Headway':headwaydr1.values}).set_index('Time Period')      ############impo ########### , 'Initial Headway':headwaydr1.values
-#print(f'\nHeadway determined by Max passeneger load in each period in Durg to Raipur is : \n',infreqdr1)     #FINAL PRINT
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           1.2.2 FREQUENCY CALCULATION 2  (based on load profile across stops)   AIRPORT GARIA
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-distancedr= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\distanceUP.csv").set_index('Distance')
-#print(distancedr)
-Ldr= distancedr.sum(axis = 1, skipna = True).values   # defined Total Distance depot ot depot
-#print(Ldr)
-Ldr= np.ceil(float(np.asarray(Ldr)))   # converts Array value to Float value with ceiling
-#print(Ldr)
-#max_pass_perioddr = pd.DataFrame({'Time Period':max_pass_perioddr.index, 'Max Passenger Load':freqdr.values}).set_index('Time Period')    #making Series to Dataframe
-                                                                   ### Not Required      passengerarrivaldr.apply(lambda x: x.max() - x, axis=1)
-#####max_pass_perioddr['passenger lost']= max_pass_perioddr['Max Passenger Load'] - passengerarrivaldr.iloc[2]
-passengerkilometerdr = passengerarrivaldr.mul(distancedr.values, axis=1)      #passengerkilometerdr is no of passenger traveling distance
-
-#print(f'\nStop to stop distance : \n',distancedr)
-#print(f'\nPassenger kilometer (period) : \n',passengerkilometerdr)
-asasdr= np.ceil(passengerkilometerdr.sum(axis = 1, skipna= True))
-#print(asasdr)
-passkmdr= passengerkilometerdr/(dob*Ldr*hrinperiod)   #passenegr load kilometer required / desired  capacity of bus kilometer available
-passkmdr= np.ceil(passkmdr.sum(axis = 1, skipna= True))   #Sum value of row in row wise
-#print(passkmdr)                                                                                                          # IMP CODE   to round decimal point       passkmdr=passkmdr.round(decimals=1)
-
-maxcapdr= max_pass_perioddr/(cob*hrinperiod)
-maxcapdr= np.ceil(maxcapdr)
-#print(maxcapdr)
-freqdr2= pd.DataFrame({'Time Period':freqdr.index,'passenger kilometer': passkmdr.values, 'Maximum Capacity':maxcapdr, 'Default Frequency': frequencydefault}).set_index('Time Period')   #matric of frequency by maximum passenger kilometer, maximum capacity and defalult frequency
-#print(freqdr2)
-
-freqdr2 = freqdr2.max(axis=1,skipna=False)
-#print(freqdr2)
-headwaydr2=(1/freqdr2)*(60)
-infreqdr2= pd.DataFrame({'Time Period':freqdr2.index, 'Initial Frequency2':freqdr2.values, 'Initial Headway2':headwaydr2.values}).set_index('Time Period')
-
-print(f'\n----------------------------------------------------------------------------\n'
-      f'Frequency and Headway determined by Ride Check Method in Garia to Bag Bazaar is :\n'
-      f'----------------------------------------------------------------------------\n',infreqdr2)  #FINAL PRINT
-
-
-
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                                    1.2.3 FREQUENCY METHODOLOGY AIRPORT GARIA
-#----------------------------------------------------------------------------------------------------------------------------------------------------------------
-frequencydr =freqdr2.values      #freqdr
-headwaydr= headwaydr2.values     #headwaydr1
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                                    1.1.3 FREQUENCY METHODOLOGY GARIA AIRPORT
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    frequencyrd =freqrd2.values      #freqrd
+    headwayrd= headwayrd2.values     #headwayrd1
 
 
 
@@ -198,492 +121,568 @@ headwaydr= headwaydr2.values     #headwaydr1
 
 
 
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           1.2.1 FREQUENCY CALCULATION  (based on Max passengers load in period)  AIRPORT GARIA
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    passengerarrivaldr = pd.read_csv("data/Passenger_arrival_UP.csv").set_index('Passenger arrival')
+    #print(passengerarrivaldr)
+                        # to print top 5 value: print(passengerarrival.head())
+                        # to print max value of each column: print(passengerarrival.max())
+                        #print(passengerarrivaldr)
+    max_pass_perioddr = passengerarrivaldr.max(axis=1,skipna=False)   # to print max value in a row, row wise i.e. max passengers in a period
+    #print(passengerarrivaldr)
+                                                        # to print a row of maximum value in a particular column print(passengerarrival[passengerarrival['Raipur']==passengerarrival['Raipur'].max()])
+    #print(max_pass_perioddr)
+    freqdr =(np.ceil(max_pass_perioddr/(dob*hrinperiod)))        #Frequency is bus required for maximum passengers in an hour (1period =4)
+    #print(freqdr)
+    freqdr[freqdr<frequencydefault] = frequencydefault        # Minimum Desire bus frequency is 2, should not be less that 2
+    #print(freqdr)
+    headwaydr1=(1/freqdr)*60
+    infreqdr1= pd.DataFrame({'Time Period':freqdr.index, 'Initial Frequency':freqdr.values, 'Initial Headway':headwaydr1.values}).set_index('Time Period')      ############impo ########### , 'Initial Headway':headwaydr1.values
+    #print(f'\nHeadway determined by Max passeneger load in each period in Durg to Raipur is : \n',infreqdr1)     #FINAL PRINT
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           1.2.2 FREQUENCY CALCULATION 2  (based on load profile across stops)   AIRPORT GARIA
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    distancedr= pd.read_csv("data/distanceUP.csv").set_index('Distance')
+    #print(distancedr)
+    Ldr= distancedr.sum(axis = 1, skipna = True).values   # defined Total Distance depot ot depot
+    #print(Ldr)
+    Ldr= np.ceil(float(np.asarray(Ldr)))   # converts Array value to Float value with ceiling
+    #print(Ldr)
+    #max_pass_perioddr = pd.DataFrame({'Time Period':max_pass_perioddr.index, 'Max Passenger Load':freqdr.values}).set_index('Time Period')    #making Series to Dataframe
+                                                                    ### Not Required      passengerarrivaldr.apply(lambda x: x.max() - x, axis=1)
+    #####max_pass_perioddr['passenger lost']= max_pass_perioddr['Max Passenger Load'] - passengerarrivaldr.iloc[2]
+    passengerkilometerdr = passengerarrivaldr.mul(distancedr.values, axis=1)      #passengerkilometerdr is no of passenger traveling distance
+
+    #print(f'\nStop to stop distance : \n',distancedr)
+    #print(f'\nPassenger kilometer (period) : \n',passengerkilometerdr)
+    asasdr= np.ceil(passengerkilometerdr.sum(axis = 1, skipna= True))
+    #print(asasdr)
+    passkmdr= passengerkilometerdr/(dob*Ldr*hrinperiod)   #passenegr load kilometer required / desired  capacity of bus kilometer available
+    passkmdr= np.ceil(passkmdr.sum(axis = 1, skipna= True))   #Sum value of row in row wise
+    #print(passkmdr)                                                                                                          # IMP CODE   to round decimal point       passkmdr=passkmdr.round(decimals=1)
+
+    maxcapdr= max_pass_perioddr/(cob*hrinperiod)
+    maxcapdr= np.ceil(maxcapdr)
+    #print(maxcapdr)
+    freqdr2= pd.DataFrame({'Time Period':freqdr.index,'passenger kilometer': passkmdr.values, 'Maximum Capacity':maxcapdr, 'Default Frequency': frequencydefault}).set_index('Time Period')   #matric of frequency by maximum passenger kilometer, maximum capacity and defalult frequency
+    #print(freqdr2)
+
+    freqdr2 = freqdr2.max(axis=1,skipna=False)
+    #print(freqdr2)
+    headwaydr2=(1/freqdr2)*(60)
+    infreqdr2= pd.DataFrame({'Time Period':freqdr2.index, 'Initial Frequency2':freqdr2.values, 'Initial Headway2':headwaydr2.values}).set_index('Time Period')
+
+    print(f'\n----------------------------------------------------------------------------\n'
+        f'Frequency and Headway determined by Ride Check Method in Garia to Bag Bazaar is :\n'
+        f'----------------------------------------------------------------------------\n',infreqdr2)  #FINAL PRINT
 
 
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           2. F L E E T   S I Z E   C A L C U L A T I O N
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                                    1.2.3 FREQUENCY METHODOLOGY AIRPORT GARIA
+    #----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    frequencydr =freqdr2.values      #freqdr
+    headwaydr= headwaydr2.values     #headwaydr1
 
 
 
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           2.1.1 Departure time calculation   GARIA AIRPORT
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-time_periodrd= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\tmeperiodDN.csv", header=0)
-print(time_periodrd)
-time_periodrd['frequency']= frequencyrd
-#print(time_periodrd)
-time_periodrd['Headway_in_hours']=(1/(frequencyrd)).round(2)
-#print(time_periodrd)
-
-departuretimerd = pd.DataFrame()
-for ind,col in time_periodrd.iterrows():
-    for f in range(0,int(time_periodrd.iloc[ind,1])):
-        departuretimerd = departuretimerd.append({'Departure': (time_periodrd.iloc[ind,0])/100+ ((f*time_periodrd.iloc[ind,2])) ,'From': A },ignore_index=True)     # Replace ((f*time_periodrd.iloc[ind,2]))*60/100
-      #print(f)
-        #if f < frequencyrd.iloc[ind,2]:
-        #df.loc[f,"Departure"]= (col['Time'])/100 + (ind * col["Headway_in_hours"])
-#for ind in df.iterrows():
-    #df= pd.to_datetime(df)
-#print(departuretimerd)
-#--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           2.1.2 Departure time calculation  AIRPORT GARIA
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-time_perioddr= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\tmeperiodUP.csv", header=0)
-#print(time_perioddr)
-time_perioddr['frequency']= frequencydr
-#print(time_perioddr)
-time_perioddr['Headway_in_hours']=(1/(frequencydr)).round(2)
-#print(time_perioddr)
 
-departuretimedr = pd.DataFrame()
-for ind,col in time_perioddr.iterrows():
-    for f in range(0,int(time_perioddr.iloc[ind,1])):
-        departuretimedr = departuretimedr.append({'Departure': (time_perioddr.iloc[ind,0])/100+ ((f*time_perioddr.iloc[ind,2])) +0.005,'From': B },ignore_index=True)     # Replace ((f*time_periodrd.iloc[ind,2]))*60/100
+
+
+
+
+
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           2. F L E E T   S I Z E   C A L C U L A T I O N
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           2.1.1 Departure time calculation   GARIA AIRPORT
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    time_periodrd= pd.read_csv("data/tmeperiodDN.csv", header=0)
+    print(time_periodrd)
+    time_periodrd['frequency']= frequencyrd
+    #print(time_periodrd)
+    time_periodrd['Headway_in_hours']=(1/(frequencyrd)).round(2)
+    #print(time_periodrd)
+
+    departuretimerd = pd.DataFrame()
+    for ind,col in time_periodrd.iterrows():
+        for f in range(0,int(time_periodrd.iloc[ind,1])):
+            departuretimerd = departuretimerd.append({'Departure': (time_periodrd.iloc[ind,0])/100+ ((f*time_periodrd.iloc[ind,2])) ,'From': A },ignore_index=True)     # Replace ((f*time_periodrd.iloc[ind,2]))*60/100
         #print(f)
-        #if f < frequencydr.iloc[ind,2]:
-        #df.loc[f,"Departure"]= (col['Time'])/100 + (ind * col["Headway_in_hours"])
-#for ind in df.iterrows():
-    #df= pd.to_datetime(df)
-#print(departuretimedr)
-#--------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           2.2.1 Travel time  GARIA AIRPORT
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-traveltimerd= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\TravelTimeDN.csv")
-traveltimerd.drop('Travel Time', axis=1, inplace= True)
-sumtraveltimerd=traveltimerd.sum(axis = 1, skipna= True)
-
-arrivaltimerd = pd.DataFrame()
-for ind in range(0,len(sumtraveltimerd.index)):
-    for f in range(0,int(time_periodrd.iloc[ind,1])):
-        arrivaltimerd = arrivaltimerd.append({'TT_to_Garia': sumtraveltimerd[ind]/60,'From': A},ignore_index=True).round(2)
-#print(arrivaltimerd)
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           2.2.2 Travel time  AIRPORT GARIA
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-traveltimedr= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\TravelTimeUP.csv")
-traveltimedr.drop('Travel Time', axis=1,inplace= True)
-sumtraveltimedr=traveltimedr.sum(axis = 1, skipna= True)
-#print(traveltimedr.to_string())
-arrivaltimedr = pd.DataFrame()
-for ind in range(0,len(sumtraveltimedr.index)):
-    for f in range(0,int(time_perioddr.iloc[ind,1])):
-        arrivaltimedr = arrivaltimedr.append({'TT_to_BagBazaar': sumtraveltimedr[ind]/60,'From': B},ignore_index=True).round(2)
-#print(arrivaltimedr)
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           2.3 Vehicle Scheduling ALL DIRECTION
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-departuretimerd['TT to Garia']= arrivaltimerd.TT_to_Garia
-departuretimedr['TT to Bagbazaar']= arrivaltimedr.TT_to_BagBazaar
-
-departuretime = pd.concat([departuretimerd, departuretimedr], ignore_index=True)
-departuretime = departuretime.sort_values(by=['Departure']).reset_index(drop=True)
-departuretime['Arrival']=np.zeros(departuretime.shape[0], dtype=int)
-tempdeparturetime=departuretime
-for i in range(0, departuretime.shape[0]):
-    if departuretime.iloc[i,1] == "Bag bazaar":
-        departuretime.iloc[i,4]= departuretime.iloc[i,0] + departuretime.iloc[i,2]
-    else:
-        departuretime.iloc[i,4] = departuretime.iloc[i,0] + departuretime.iloc[i,3]
-
-departuretime["To"]= np.where(departuretime["From"] == "Bag bazaar" , 0, 1 )
-departuretime['Fleet B']=np.zeros(departuretime.shape[0], dtype=int)
-departuretime['Fleet G']=np.zeros(departuretime.shape[0], dtype=int)
-departuretime['Pool B']=np.zeros(departuretime.shape[0], dtype=int)
-departuretime['Pool G']=np.zeros(departuretime.shape[0], dtype=int)
-for m in range(0,departuretime.shape[0]):#and departuretime.iloc[ind-1,3]=="Raipur":
-    #print(departuretime.iloc[0,4].min() and departuretime.iloc[m, 5] == 1)
-    if departuretime.iloc[m, 5] == 1 and departuretime.iloc[m,0] <= departuretime.iloc[:,4].min():
-        departuretime.iloc[m, 7] = 1
-
-    elif departuretime.iloc[m, 5] == 0 and departuretime.iloc[m,0] <= departuretime.iloc[:,4].min():
-        departuretime.iloc[m, 6] = 1
-
-    elif departuretime.iloc[m, 5] == 1 and departuretime.iloc[m,0] > departuretime.iloc[:,4].min():
-        departuretime.iloc[m, 9] =1
-
-        departuretime = departuretime.sort_values(["To", "Arrival"],ascending=[True, True])  # .replace(departuretime.iloc[0,4], 99)
-        departuretime = departuretime.replace(departuretime.iloc[0, 4], 999)
-        departuretime = departuretime.sort_index(ascending=True)
-
-    elif departuretime.iloc[m, 5] == 0 and departuretime.iloc[m,0] > departuretime.iloc[:,4].min():
-        departuretime.iloc[m, 8] = 1
-
-        departuretime = departuretime.sort_values(["To", "Arrival"], ascending=[False, True])  # .replace(departuretime.iloc[0,4], 99)
-        departuretime = departuretime.replace(departuretime.iloc[0, 4], 999)
-        departuretime = departuretime.sort_index(ascending=True)
-    else:
-        departuretime.iloc[m, 6] = 1
-
-#---------------------
-departuretime["Departure"]=np.floor(tempdeparturetime["Departure"])+(tempdeparturetime["Departure"]- (np.floor(tempdeparturetime["Departure"])))/100*60
-departuretime["Arrival"]= np.floor(tempdeparturetime["Arrival"])+(tempdeparturetime["Arrival"]- (np.floor(tempdeparturetime["Arrival"])))/100*60                          #str(tempdeparturetime["Arrival"](math.floor(time))) + ':' + str(tempdeparturetime["Arrival"]((time%(math.floor(time)))*60))
-#---------------------
-departuretime["To"]= np.where(departuretime["To"] == 0 , "Garia", "Bag bazaar" )
-print(f'\n--------------------------------------------\n'
-      f'Vehicle timetable as per Initial Frequency :'
-      f'\n--------------------------------------------\n',departuretime.sort_index(ascending=True).to_string())        #.to_string() is to Show all content  in the result window.  IMPORTANT TO KNOW
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           3.  C O S T   C A L C U L A T I O N S   I N   A L L   D I R E C T I O N
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           3.1 FIXED COST CALCULATIONS ALL DIRECTIONs
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-busreq_at_raipur= departuretime['Fleet B'].sum()
-busreq_at_durg=departuretime['Fleet G'].sum()
-poolsize_at_raipur=departuretime['Pool B'].sum()
-poolsize_at_durg=departuretime['Pool G'].sum()
-print(f'\n---------------------------------------\n'
-      f'Vehicle Operation Details and Costing :'
-      f'\n---------------------------------------')
-print(f'\nNo. of Bus required at Bag bazaar Depot :',busreq_at_raipur,'\nNo. of Bus required at Garia Depot:',busreq_at_durg,'\n\nNo. of Bus reutilized from Pool at Bagbazaar :',poolsize_at_raipur,"\nNo. of Bus reutilized from Pool at Garia :", poolsize_at_durg)
-
-
-
-totalkilometrerunrd=(busreq_at_raipur+poolsize_at_raipur) * (Lrd)
-#print(f'\nTotal Bus Kilometre-run in Raipur to Durg direction :\t    ',totalkilometrerunrd,'Km')
-
-#print('----------------------------------------------------------------------')
-
-fuelcostdayrd=(fuelprice*totalkilometrerunrd/kmperliter).round(-2).round(0)
-#print(f'Cost of fuel in Raipur to Durg direction :\t\t\t\t  ₹',fuelcostdayrd)
-
-maintenancecostrd= (totalkilometrerunrd*busmaintenance).round(0)
-#print(f'Cost of maintenance in Raipur to Durg direction :\t\t   ₹',maintenancecostrd)
-
-vehdepreciationrd= (buscost/buslifecycle *totalkilometrerunrd/(busreq_at_raipur)).round(0)
-#print(f'Vehicle depreciation cost in Raipur to Durg direction :\t   ₹',vehdepreciationrd)
-
-crewwagecostrd= (crewperbus*(busreq_at_raipur)*creqincome/30).round(0)
-#print(f'Crew cost in Raipur to Durg direction :\t\t\t\t\t  ₹',crewwagecostrd)
-
-#print('----------------------------------------------------------------------')
-#print(f'Fixed Vehicle cost in Raipur to Durg direction :\t\t  ₹',fuelcostdayrd+maintenancecostrd+vehdepreciationrd+crewwagecostrd)
-
-
-print("\nDirection wise details                               Bag bazaar to Garia        Garia to Bag bazaar")
-print('-------------------------------------------------------------------------------------------')
-
-totalkilometrerundr=(busreq_at_durg+poolsize_at_durg) * (Ldr)
-print(f'Vehcile Kilometre-run :\t                                    ',totalkilometrerunrd,'Km','          ',totalkilometrerundr,'Km')
-
-
-fuelcostdaydr=(fuelprice*totalkilometrerundr/kmperliter).round(-2)
-print(f'Cost of fuel:                                             ₹',fuelcostdayrd,'           ₹',fuelcostdaydr)
-
-maintenancecostdr= (totalkilometrerundr*busmaintenance).round(0)
-print(f'Cost of vehicle maintenance:                               ₹',maintenancecostrd,'            ₹',maintenancecostdr)
-
-vehdepreciationdr= (buscost/buslifecycle *totalkilometrerundr/(busreq_at_raipur)).round(0)
-print(f'Vehicle depreciation cost:                                 ₹',vehdepreciationrd,'            ₹',vehdepreciationdr)
-
-crewwagecostdr= (crewperbus*(busreq_at_durg)*creqincome/30).round(0)
-print(f'Crew cost:                                                ₹',crewwagecostrd,'           ₹',crewwagecostdr)
-
-fixedcostrd=fuelcostdayrd+maintenancecostrd+vehdepreciationrd+crewwagecostrd
-fixedcostdr=fuelcostdaydr+maintenancecostdr+vehdepreciationdr+crewwagecostdr
-overallfixedcost=fixedcostrd+fixedcostdr
-print('-------------------------------------------------------------------------------------------')
-print(f'Fixed Vehicle cost:                                       ₹',fixedcostrd,'           ₹',fixedcostdr)
-print(f'Total Fixed Vehicle Cost for full Day Operation in both directions:  ₹',overallfixedcost)
-
-
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-#                                                           3.2 OPERATIONAL COST CALCULATIONS GARIA TO AIRPORT
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# 1 TO GET LIST OF DEPARTURE FROM RAIPUR
-'''
-depfromraipur=departuretime[departuretime.From=="Bag bazaar"]
-depfromraipur = pd.concat([depfromraipur], ignore_index=True)
-depfromraipur.reset_index(drop=False)
-print(depfromraipur)
-
-# 1 TO GET LIST OF DEPARTURE FROM RAIPUR
-depfromdurg=departuretime[departuretime.From=="Garia"]
-depfromdurg = pd.concat([depfromdurg], ignore_index=True)
-depfromdurg.reset_index(drop=False)
-print(depfromdurg)
-'''
-
-
-
-alightrd= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\alightingrate_DN.csv").set_index('Alighting')
-boardrd= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\Boarding_rate_DN.csv").set_index('Boarding')
-tratimerd= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\TravelTimeDN.csv").set_index('Travel Time')
-
-
-alightdr= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\alighting_rate_UP.csv").set_index('Alighting')
-boarddr= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\Boarding_rate_UP.csv").set_index('Boarding')
-tratimedr= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\TravelTimeUP.csv").set_index('Travel Time')
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-#                                                           3.2.1 WAITING TIME, FAILS TO BOARD, TRAVEL TIME + PENALTY   GARIA TO AIRPORT
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#-----------------------------------------------------------PASSENEGR WAITING-----------------------------------------------------------------------------
-
-arrivalraterd= passengerarrivalrd/(hrinperiod*60)
-#print(arrivalrate)passengerarrivaldr
-
-pass_arrivingrd= arrivalraterd[:].multiply(headwayrd, axis="index")      #IMPORTANT CODE for Single column of headwayrd2 multiplied with multiple column of arrivalrate
-pass_arrivingrd=np.ceil(pass_arrivingrd[:].multiply(frequencyrd, axis="index")*hrinperiod)
-print(f'\nTable of Passenger arriving at bus stops G-A:\n',pass_arrivingrd.to_string())
-
-Tot_pass_arrivingrd= np.ceil(pass_arrivingrd.sum(axis = 1, skipna= True))
-#Tot_pass_arrivingrd= np.ceil(Tot_pass_arrivingrd.sum(axis = 0, skipna= True))
-print(f'\n--------------------------------------------------------------------')
-print(f'No. of Passengers arriving at Bus stops A-G is :',Tot_pass_arrivingrd)
-print(f'--------------------------------------------------------------------')
-#---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#-----------------------------------------------------------PASSENGER LOST--------------------------------------------------------------------------------
-
-#print(dwelling)
-#  IMP CODE to sum of all row wise Total dwelling= np.floor(dwelling.sum(axis = 1, skipna= True))
-
-pass_boardingrd= (boardrd[:].multiply(pass_arrivingrd, axis="index"))
-#pass_boarding= (pass_boarding[:].multiply(freqrd2, axis="index"))
-
-pass_alightingrd= (alightrd[:].multiply(pass_arrivingrd, axis="index"))
-#pass_alighting= (pass_alighting[:].multiply(freqrd2, axis="index"))
-
-#print(f'Passenger boarding at all stops',pass_boardingrd)
-#print(f'Passenger Alighting at all stops',pass_alightingrd)
-
-dwellingsrd=pass_boardingrd-pass_alightingrd
-#freqdr[freqdr>frequencydefault] = frequencydefault
-
-#dwellingsrd= dwellingsrd[:].multiply(frequencyrd, axis="index")*hrinperiod
-
-dwellingsrd=abs(np.ceil(dwellingsrd.cumsum(axis = 1, skipna = True)))
-dwellingsrd=dwellingsrd. dropna()
-
-for i in range(0, len(dwellingsrd.index)):
-    for j in range(0, len(dwellingsrd.columns)):
-        if dwellingsrd.iloc[i,j]>=(cob*(frequencyrd[i])):
-            dwellingsrd.iloc[i,j]=(cob*(frequencyrd[i]))
+            #if f < frequencyrd.iloc[ind,2]:
+            #df.loc[f,"Departure"]= (col['Time'])/100 + (ind * col["Headway_in_hours"])
+    #for ind in df.iterrows():
+        #df= pd.to_datetime(df)
+    #print(departuretimerd)
+    #--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           2.1.2 Departure time calculation  AIRPORT GARIA
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    time_perioddr= pd.read_csv("data/tmeperiodUP.csv", header=0)
+    #print(time_perioddr)
+    time_perioddr['frequency']= frequencydr
+    #print(time_perioddr)
+    time_perioddr['Headway_in_hours']=(1/(frequencydr)).round(2)
+    #print(time_perioddr)
+
+    departuretimedr = pd.DataFrame()
+    for ind,col in time_perioddr.iterrows():
+        for f in range(0,int(time_perioddr.iloc[ind,1])):
+            departuretimedr = departuretimedr.append({'Departure': (time_perioddr.iloc[ind,0])/100+ ((f*time_perioddr.iloc[ind,2])) +0.005,'From': B },ignore_index=True)     # Replace ((f*time_periodrd.iloc[ind,2]))*60/100
+            #print(f)
+            #if f < frequencydr.iloc[ind,2]:
+            #df.loc[f,"Departure"]= (col['Time'])/100 + (ind * col["Headway_in_hours"])
+    #for ind in df.iterrows():
+        #df= pd.to_datetime(df)
+    #print(departuretimedr)
+    #--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           2.2.1 Travel time  GARIA AIRPORT
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    traveltimerd= pd.read_csv("data/TravelTimeDN.csv")
+    traveltimerd.drop('Travel Time', axis=1, inplace= True)
+    sumtraveltimerd=traveltimerd.sum(axis = 1, skipna= True)
+
+    arrivaltimerd = pd.DataFrame()
+    for ind in range(0,len(sumtraveltimerd.index)):
+        for f in range(0,int(time_periodrd.iloc[ind,1])):
+            arrivaltimerd = arrivaltimerd.append({'TT_to_Garia': sumtraveltimerd[ind]/60,'From': A},ignore_index=True).round(2)
+    #print(arrivaltimerd)
+
+
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           2.2.2 Travel time  AIRPORT GARIA
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    traveltimedr= pd.read_csv("data/TravelTimeUP.csv")
+    traveltimedr.drop('Travel Time', axis=1,inplace= True)
+    sumtraveltimedr=traveltimedr.sum(axis = 1, skipna= True)
+    #print(traveltimedr.to_string())
+    arrivaltimedr = pd.DataFrame()
+    for ind in range(0,len(sumtraveltimedr.index)):
+        for f in range(0,int(time_perioddr.iloc[ind,1])):
+            arrivaltimedr = arrivaltimedr.append({'TT_to_BagBazaar': sumtraveltimedr[ind]/60,'From': B},ignore_index=True).round(2)
+    #print(arrivaltimedr)
+
+
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           2.3 Vehicle Scheduling ALL DIRECTION
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    departuretimerd['TT to Garia']= arrivaltimerd.TT_to_Garia
+    departuretimedr['TT to Bagbazaar']= arrivaltimedr.TT_to_BagBazaar
+
+    departuretime = pd.concat([departuretimerd, departuretimedr], ignore_index=True)
+    departuretime = departuretime.sort_values(by=['Departure']).reset_index(drop=True)
+    departuretime['Arrival']=np.zeros(departuretime.shape[0], dtype=int)
+    tempdeparturetime=departuretime
+    for i in range(0, departuretime.shape[0]):
+        if departuretime.iloc[i,1] == "Bag bazaar":
+            departuretime.iloc[i,4]= departuretime.iloc[i,0] + departuretime.iloc[i,2]
         else:
-            pass
+            departuretime.iloc[i,4] = departuretime.iloc[i,0] + departuretime.iloc[i,3]
 
-#####dwellingsrd=dwellingsrd.sum(axis = 1, skipna= True)
-print(f'\nTable of No.of people able to board the bus G_A:\n',dwellingsrd.to_string())
+    departuretime["To"]= np.where(departuretime["From"] == "Bag bazaar" , 0, 1 )
+    departuretime['Fleet B']=np.zeros(departuretime.shape[0], dtype=int)
+    departuretime['Fleet G']=np.zeros(departuretime.shape[0], dtype=int)
+    departuretime['Pool B']=np.zeros(departuretime.shape[0], dtype=int)
+    departuretime['Pool G']=np.zeros(departuretime.shape[0], dtype=int)
+    for m in range(0,departuretime.shape[0]):#and departuretime.iloc[ind-1,3]=="Raipur":
+        #print(departuretime.iloc[0,4].min() and departuretime.iloc[m, 5] == 1)
+        if departuretime.iloc[m, 5] == 1 and departuretime.iloc[m,0] <= departuretime.iloc[:,4].min():
+            departuretime.iloc[m, 7] = 1
 
+        elif departuretime.iloc[m, 5] == 0 and departuretime.iloc[m,0] <= departuretime.iloc[:,4].min():
+            departuretime.iloc[m, 6] = 1
 
+        elif departuretime.iloc[m, 5] == 1 and departuretime.iloc[m,0] > departuretime.iloc[:,4].min():
+            departuretime.iloc[m, 9] =1
 
-Totdwellingsrd=dwellingsrd.sum(axis = 1, skipna= True)
-print(f'No of people who can board is :',Totdwellingsrd)
+            departuretime = departuretime.sort_values(["To", "Arrival"],ascending=[True, True])  # .replace(departuretime.iloc[0,4], 99)
+            departuretime = departuretime.replace(departuretime.iloc[0, 4], 999)
+            departuretime = departuretime.sort_index(ascending=True)
 
-passcantboardrd=pass_arrivingrd-dwellingsrd
-passcantboardrd[passcantboardrd<0] = 0
+        elif departuretime.iloc[m, 5] == 0 and departuretime.iloc[m,0] > departuretime.iloc[:,4].min():
+            departuretime.iloc[m, 8] = 1
 
-print(f"\nTable of people who can't board is :\n",(passcantboardrd).to_string())
-
-
-#print(f'\nNo of people who cant board is',passcantboardrd)
-
-Totpasscantboardrd= abs(np.ceil(passcantboardrd).sum(axis = 1, skipna= True))
-#Totpasscantboardrd[Totpasscantboardrd<0] = 0
-print(f"Total No of people who can't board the bus due to crowding G-A is :",Totpasscantboardrd)
- #IMPORTANT PASSENGER LOST
-#---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#-----------------------------------------------------------TOTAL PASSENGER WAITING-----------------------------------------------------------------------
-#print(f'this one',headwayrd)
-#print(Tot_pass_arrivingrd)
-#print(arrivalraterd)
-
-
-#Tot_pass_wait_timerd= 1/2 * (arrivalraterd[:]).multiply(headwayrd, axis="index") + Totpasscantboardrd
-
-pass_wait_timerd= 0.5*(arrivalraterd[:]).multiply(headwayrd, axis="index")  #+passcantboardrd
-pass_wait_timerd= (pass_wait_timerd[:]).multiply(headwayrd, axis="index")
-pass_wait_timerd=pass_wait_timerd+passcantboardrd
-
-print(f"\nTable of time passengers are spending while waiting for bus G-A (min) :\n",pass_wait_timerd.to_string())
-Tot_pass_wait_timerd=pass_wait_timerd.sum(axis = 1, skipna= True)
-#Tot_pass_wait_timerd=Tot_pass_wait_timerd.sum(axis = 0, skipna= True)
-print(f'Total passenger waiting time (min) G-A is :',Tot_pass_wait_timerd.round(0))
- #IMPORTANT TOTAL PASSENGER WAITING
-#---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-#-----------------------------------------------------------In VEHICLE TRAVEL TIME------------------------------------------------------------------------
-
-#invehtime= dwelling.mul(distancerd)
-
-#value_of_time= pd.read_csv(r'C:\Users\Ashish\Documents\IIT\thesis\PYTHON\DATABASE\valueoftimerd.csv').set_index('Value of Time (Raipur - Durg) (Rupee)')
-print(dwellingsrd)
-print(tratimerd)
-print(dwellingsrd.iloc[0,0])
-print(tratimerd.iloc[0,0])
-
-invehtimerd= pd.DataFrame((dwellingsrd.values*tratimerd.values), columns=dwellingsrd.columns, index=dwellingsrd.index)
-
-print(f'\nTable of Invehicle waiting time (min) G-A:\n',invehtimerd.to_string())
-#invehtimerd= np.ceil(invehtimerd.sum())
-Totalinvehtimerd= np.ceil(invehtimerd.sum(axis=1))
-print(f'Total Invehicle waiting time G-A (min) is :',Totalinvehtimerd)
-print("heeeee")
-
- # IMPORTANT In VEHICLE TRAVEL TIME
-#---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-#                                                           3.2.2 WAITING TIME, FAILS TO BOARD, TRAVEL TIME + PENALTY  AIRPORT TO GARIA
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-#-----------------------------------------------------------PASSENEGR WAITING-----------------------------------------------------------------------------
-
-arrivalratedr= passengerarrivaldr/(hrinperiod*60)
-#print(arrivalrate)passengerarrivaldr
-
-pass_arrivingdr= arrivalratedr[:].multiply(headwaydr, axis="index")      #IMPORTANT CODE for Single column of headwayrd2 multiplied with multiple column of arrivalrate
-pass_arrivingdr=np.ceil(pass_arrivingdr[:].multiply(frequencydr, axis="index")*hrinperiod)
-print(f'\nTable of Passenger arriving at bus stops A-G:\n',pass_arrivingdr.to_string())
-
-Tot_pass_arrivingdr= np.ceil(pass_arrivingdr.sum(axis = 1, skipna= True))
-#Tot_pass_arrivingrd= np.ceil(Tot_pass_arrivingrd.sum(axis = 0, skipna= True))
-print(f'\n--------------------------------------------------------------------')
-print(f'No. of Passengers arriving at Bus stops A-G is :',Tot_pass_arrivingdr)
-print(f'--------------------------------------------------------------------')
-#---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#-----------------------------------------------------------PASSENGER LOST--------------------------------------------------------------------------------
-
-#print(dwelling)
-#  IMP CODE to sum of all row wise Total dwelling= np.floor(dwelling.sum(axis = 1, skipna= True))
-
-pass_boardingdr= (boarddr[:].multiply(pass_arrivingdr, axis="index"))
-#pass_boarding= (pass_boarding[:].multiply(freqrd2, axis="index"))
-
-pass_alightingdr= (alightdr[:].multiply(pass_arrivingdr, axis="index"))
-#pass_alighting= (pass_alighting[:].multiply(freqrd2, axis="index"))
-
-#print(f'Passenger boarding at all stops',pass_boardingrd)
-#print(f'Passenger Alighting at all stops',pass_alightingrd)
-
-dwellingsdr=pass_boardingdr-pass_alightingdr
-#freqdr[freqdr>frequencydefault] = frequencydefault
-
-#dwellingsrd= dwellingsrd[:].multiply(frequencyrd, axis="index")*hrinperiod
-
-dwellingsdr=abs(np.ceil(dwellingsdr.cumsum(axis = 1, skipna = True)))
-
-
-for i in range(0, len(dwellingsdr.index)):
-    for j in range(0, len(dwellingsdr.columns)):
-        if dwellingsdr.iloc[i,j]>=(cob*(frequencydr[i])):
-            dwellingsdr.iloc[i,j]=(cob*(frequencydr[i]))
+            departuretime = departuretime.sort_values(["To", "Arrival"], ascending=[False, True])  # .replace(departuretime.iloc[0,4], 99)
+            departuretime = departuretime.replace(departuretime.iloc[0, 4], 999)
+            departuretime = departuretime.sort_index(ascending=True)
         else:
-            pass
+            departuretime.iloc[m, 6] = 1
 
-#####dwellingsrd=dwellingsrd.sum(axis = 1, skipna= True)
-print(f'\nTable of No.of people able to board the bus A-G:\n',dwellingsdr.to_string())
-
-
-
-Totdwellingsdr=dwellingsdr.sum(axis = 1, skipna= True)
-print(f'No of people who can board is :',Totdwellingsdr)
-
-passcantboarddr=pass_arrivingdr-dwellingsdr
-passcantboarddr[passcantboarddr<0] = 0
-
-print(f"\nTable of people who can't board is :\n",(passcantboarddr).to_string())
-
-
-#print(f'\nNo of people who cant board is',passcantboardrd)
-
-Totpasscantboarddr= abs(np.ceil(passcantboarddr).sum(axis = 1, skipna= True))
-#Totpasscantboardrd[Totpasscantboardrd<0] = 0
-print(f"Total No of people who can't board the bus due to crowding A-G is :",Totpasscantboarddr)
- #IMPORTANT PASSENGER LOST
-#---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#-----------------------------------------------------------TOTAL PASSENGER WAITING-----------------------------------------------------------------------
-#print(f'this one',headwayrd)
-#print(Tot_pass_arrivingrd)
-#print(arrivalraterd)
-
-
-#Tot_pass_wait_timerd= 1/2 * (arrivalraterd[:]).multiply(headwayrd, axis="index") + Totpasscantboardrd
-
-pass_wait_timedr= 0.5*(arrivalratedr[:]).multiply(headwaydr, axis="index")  #+passcantboardrd
-pass_wait_timedr= (pass_wait_timedr[:]).multiply(headwaydr, axis="index")
-pass_wait_timedr=pass_wait_timedr+passcantboarddr
-
-print(f"\nTable of time passengers are spending while waiting for bus A-G (min) :\n",pass_wait_timedr.to_string())
-Tot_pass_wait_timedr=pass_wait_timedr.sum(axis = 1, skipna= True)
-#Tot_pass_wait_timerd=Tot_pass_wait_timerd.sum(axis = 0, skipna= True)
-print(f'Total passenger waiting time (min) A-G is :',Tot_pass_wait_timedr.round(0))
- #IMPORTANT TOTAL PASSENGER WAITING
-#---------------------------------------------------------------------------------------------------------------------------------------------------------
+    #---------------------
+    departuretime["Departure"]=np.floor(tempdeparturetime["Departure"])+(tempdeparturetime["Departure"]- (np.floor(tempdeparturetime["Departure"])))/100*60
+    departuretime["Arrival"]= np.floor(tempdeparturetime["Arrival"])+(tempdeparturetime["Arrival"]- (np.floor(tempdeparturetime["Arrival"])))/100*60                          #str(tempdeparturetime["Arrival"](math.floor(time))) + ':' + str(tempdeparturetime["Arrival"]((time%(math.floor(time)))*60))
+    #---------------------
+    departuretime["To"]= np.where(departuretime["To"] == 0 , "Garia", "Bag bazaar" )
+    print(f'\n--------------------------------------------\n'
+        f'Vehicle timetable as per Initial Frequency :'
+        f'\n--------------------------------------------\n',departuretime.sort_index(ascending=True).to_string())        #.to_string() is to Show all content  in the result window.  IMPORTANT TO KNOW
 
 
 
-#-----------------------------------------------------------In VEHICLE TRAVEL TIME------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           3.  C O S T   C A L C U L A T I O N S   I N   A L L   D I R E C T I O N
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#invehtime= dwelling.mul(distancerd)
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           3.1 FIXED COST CALCULATIONS ALL DIRECTIONs
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#value_of_time= pd.read_csv(r'C:\Users\Ashish\Documents\IIT\thesis\PYTHON\DATABASE\valueoftimerd.csv').set_index('Value of Time (Raipur - Durg) (Rupee)')
+    busreq_at_raipur= departuretime['Fleet B'].sum()
+    busreq_at_durg=departuretime['Fleet G'].sum()
+    poolsize_at_raipur=departuretime['Pool B'].sum()
+    poolsize_at_durg=departuretime['Pool G'].sum()
+    print(f'\n---------------------------------------\n'
+        f'Vehicle Operation Details and Costing :'
+        f'\n---------------------------------------')
+    print(f'\nNo. of Bus required at Bag bazaar Depot :',busreq_at_raipur,'\nNo. of Bus required at Garia Depot:',busreq_at_durg,'\n\nNo. of Bus reutilized from Pool at Bagbazaar :',poolsize_at_raipur,"\nNo. of Bus reutilized from Pool at Garia :", poolsize_at_durg)
 
-invehtimedr= pd.DataFrame((dwellingsdr.values*tratimedr.values), columns=dwellingsdr.columns, index=dwellingsdr.index)
 
-print(f'\nTable of Invehicle waiting time (min) A-G:\n',invehtimedr.to_string())
-#invehtimerd= np.ceil(invehtimerd.sum())
-Totalinvehtimedr= np.ceil(invehtimedr.sum(axis=1))
-print(f'Total Invehicle waiting time A-G (min) is :',Totalinvehtimedr)
-print("heeeee")
+
+    totalkilometrerunrd=(busreq_at_raipur+poolsize_at_raipur) * (Lrd)
+    #print(f'\nTotal Bus Kilometre-run in Raipur to Durg direction :\t    ',totalkilometrerunrd,'Km')
+
+    #print('----------------------------------------------------------------------')
+
+    fuelcostdayrd=(fuelprice*totalkilometrerunrd/kmperliter).round(-2).round(0)
+    #print(f'Cost of fuel in Raipur to Durg direction :\t\t\t\t  ₹',fuelcostdayrd)
+
+    maintenancecostrd= (totalkilometrerunrd*busmaintenance).round(0)
+    #print(f'Cost of maintenance in Raipur to Durg direction :\t\t   ₹',maintenancecostrd)
+
+    vehdepreciationrd= (buscost/buslifecycle *totalkilometrerunrd/(busreq_at_raipur)).round(0)
+    #print(f'Vehicle depreciation cost in Raipur to Durg direction :\t   ₹',vehdepreciationrd)
+
+    crewwagecostrd= (crewperbus*(busreq_at_raipur)*creqincome/30).round(0)
+    #print(f'Crew cost in Raipur to Durg direction :\t\t\t\t\t  ₹',crewwagecostrd)
+
+    #print('----------------------------------------------------------------------')
+    #print(f'Fixed Vehicle cost in Raipur to Durg direction :\t\t  ₹',fuelcostdayrd+maintenancecostrd+vehdepreciationrd+crewwagecostrd)
+
+
+    print("\nDirection wise details                               Bag bazaar to Garia        Garia to Bag bazaar")
+    print('-------------------------------------------------------------------------------------------')
+
+    totalkilometrerundr=(busreq_at_durg+poolsize_at_durg) * (Ldr)
+    print(f'Vehcile Kilometre-run :\t                                    ',totalkilometrerunrd,'Km','          ',totalkilometrerundr,'Km')
+
+
+    fuelcostdaydr=(fuelprice*totalkilometrerundr/kmperliter).round(-2)
+    print(f'Cost of fuel:                                             ₹',fuelcostdayrd,'           ₹',fuelcostdaydr)
+
+    maintenancecostdr= (totalkilometrerundr*busmaintenance).round(0)
+    print(f'Cost of vehicle maintenance:                               ₹',maintenancecostrd,'            ₹',maintenancecostdr)
+
+    vehdepreciationdr= (buscost/buslifecycle *totalkilometrerundr/(busreq_at_raipur)).round(0)
+    print(f'Vehicle depreciation cost:                                 ₹',vehdepreciationrd,'            ₹',vehdepreciationdr)
+
+    crewwagecostdr= (crewperbus*(busreq_at_durg)*creqincome/30).round(0)
+    print(f'Crew cost:                                                ₹',crewwagecostrd,'           ₹',crewwagecostdr)
+
+    fixedcostrd=fuelcostdayrd+maintenancecostrd+vehdepreciationrd+crewwagecostrd
+    fixedcostdr=fuelcostdaydr+maintenancecostdr+vehdepreciationdr+crewwagecostdr
+    overallfixedcost=fixedcostrd+fixedcostdr
+    print('-------------------------------------------------------------------------------------------')
+    print(f'Fixed Vehicle cost:                                       ₹',fixedcostrd,'           ₹',fixedcostdr)
+    print(f'Total Fixed Vehicle Cost for full Day Operation in both directions:  ₹',overallfixedcost)
+
+
+
+
+
+
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                           3.2 OPERATIONAL COST CALCULATIONS GARIA TO AIRPORT
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    # 1 TO GET LIST OF DEPARTURE FROM RAIPUR
+    '''
+    depfromraipur=departuretime[departuretime.From=="Bag bazaar"]
+    depfromraipur = pd.concat([depfromraipur], ignore_index=True)
+    depfromraipur.reset_index(drop=False)
+    print(depfromraipur)
+
+    # 1 TO GET LIST OF DEPARTURE FROM RAIPUR
+    depfromdurg=departuretime[departuretime.From=="Garia"]
+    depfromdurg = pd.concat([depfromdurg], ignore_index=True)
+    depfromdurg.reset_index(drop=False)
+    print(depfromdurg)
+    '''
+
+
+
+    alightrd= pd.read_csv("data/alightingrate_DN.csv").set_index('Alighting')
+    boardrd= pd.read_csv("data/Boarding_rate_DN.csv").set_index('Boarding')
+    tratimerd= pd.read_csv("data/TravelTimeDN.csv").set_index('Travel Time')
+
+
+    alightdr= pd.read_csv("data/alighting_rate_UP.csv").set_index('Alighting')
+    boarddr= pd.read_csv("data/Boarding_rate_UP.csv").set_index('Boarding')
+    tratimedr= pd.read_csv("data/TravelTimeUP.csv").set_index('Travel Time')
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    #                                                           3.2.1 WAITING TIME, FAILS TO BOARD, TRAVEL TIME + PENALTY   GARIA TO AIRPORT
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    #-----------------------------------------------------------PASSENEGR WAITING-----------------------------------------------------------------------------
+
+    arrivalraterd= passengerarrivalrd/(hrinperiod*60)
+    #print(arrivalrate)passengerarrivaldr
+
+    pass_arrivingrd= arrivalraterd[:].multiply(headwayrd, axis="index")      #IMPORTANT CODE for Single column of headwayrd2 multiplied with multiple column of arrivalrate
+    pass_arrivingrd=np.ceil(pass_arrivingrd[:].multiply(frequencyrd, axis="index")*hrinperiod)
+    print(f'\nTable of Passenger arriving at bus stops G-A:\n',pass_arrivingrd.to_string())
+
+    Tot_pass_arrivingrd= np.ceil(pass_arrivingrd.sum(axis = 1, skipna= True))
+    #Tot_pass_arrivingrd= np.ceil(Tot_pass_arrivingrd.sum(axis = 0, skipna= True))
+    print(f'\n--------------------------------------------------------------------')
+    print(f'No. of Passengers arriving at Bus stops A-G is :',Tot_pass_arrivingrd)
+    print(f'--------------------------------------------------------------------')
+    #---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    #-----------------------------------------------------------PASSENGER LOST--------------------------------------------------------------------------------
+
+    #print(dwelling)
+    #  IMP CODE to sum of all row wise Total dwelling= np.floor(dwelling.sum(axis = 1, skipna= True))
+
+    pass_boardingrd= (boardrd[:].multiply(pass_arrivingrd, axis="index"))
+    #pass_boarding= (pass_boarding[:].multiply(freqrd2, axis="index"))
+
+    pass_alightingrd= (alightrd[:].multiply(pass_arrivingrd, axis="index"))
+    #pass_alighting= (pass_alighting[:].multiply(freqrd2, axis="index"))
+
+    #print(f'Passenger boarding at all stops',pass_boardingrd)
+    #print(f'Passenger Alighting at all stops',pass_alightingrd)
+
+    dwellingsrd=pass_boardingrd-pass_alightingrd
+    #freqdr[freqdr>frequencydefault] = frequencydefault
+
+    #dwellingsrd= dwellingsrd[:].multiply(frequencyrd, axis="index")*hrinperiod
+
+    dwellingsrd=abs(np.ceil(dwellingsrd.cumsum(axis = 1, skipna = True)))
+    dwellingsrd=dwellingsrd. dropna()
+
+    for i in range(0, len(dwellingsrd.index)):
+        for j in range(0, len(dwellingsrd.columns)):
+            if dwellingsrd.iloc[i,j]>=(cob*(frequencyrd[i])):
+                dwellingsrd.iloc[i,j]=(cob*(frequencyrd[i]))
+            else:
+                pass
+
+    #####dwellingsrd=dwellingsrd.sum(axis = 1, skipna= True)
+    print(f'\nTable of No.of people able to board the bus G_A:\n',dwellingsrd.to_string())
+
+
+
+    Totdwellingsrd=dwellingsrd.sum(axis = 1, skipna= True)
+    print(f'No of people who can board is :',Totdwellingsrd)
+
+    passcantboardrd=pass_arrivingrd-dwellingsrd
+    passcantboardrd[passcantboardrd<0] = 0
+
+    print(f"\nTable of people who can't board is :\n",(passcantboardrd).to_string())
+
+
+    #print(f'\nNo of people who cant board is',passcantboardrd)
+
+    Totpasscantboardrd= abs(np.ceil(passcantboardrd).sum(axis = 1, skipna= True))
+    #Totpasscantboardrd[Totpasscantboardrd<0] = 0
+    print(f"Total No of people who can't board the bus due to crowding G-A is :",Totpasscantboardrd)
+    #IMPORTANT PASSENGER LOST
+    #---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    #-----------------------------------------------------------TOTAL PASSENGER WAITING-----------------------------------------------------------------------
+    #print(f'this one',headwayrd)
+    #print(Tot_pass_arrivingrd)
+    #print(arrivalraterd)
+
+
+    #Tot_pass_wait_timerd= 1/2 * (arrivalraterd[:]).multiply(headwayrd, axis="index") + Totpasscantboardrd
+
+    pass_wait_timerd= 0.5*(arrivalraterd[:]).multiply(headwayrd, axis="index")  #+passcantboardrd
+    pass_wait_timerd= (pass_wait_timerd[:]).multiply(headwayrd, axis="index")
+    pass_wait_timerd=pass_wait_timerd+passcantboardrd
+
+    print(f"\nTable of time passengers are spending while waiting for bus G-A (min) :\n",pass_wait_timerd.to_string())
+    Tot_pass_wait_timerd=pass_wait_timerd.sum(axis = 1, skipna= True)
+    #Tot_pass_wait_timerd=Tot_pass_wait_timerd.sum(axis = 0, skipna= True)
+    print(f'Total passenger waiting time (min) G-A is :',Tot_pass_wait_timerd.round(0))
+    #IMPORTANT TOTAL PASSENGER WAITING
+    #---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    #-----------------------------------------------------------In VEHICLE TRAVEL TIME------------------------------------------------------------------------
+
+    #invehtime= dwelling.mul(distancerd)
+
+    #value_of_time= pd.read_csv(r'C:\Users\Ashish\Documents\IIT\thesis\PYTHON\DATABASE\valueoftimerd.csv').set_index('Value of Time (Raipur - Durg) (Rupee)')
+    print(dwellingsrd)
+    print(tratimerd)
+    print(dwellingsrd.iloc[0,0])
+    print(tratimerd.iloc[0,0])
+
+    invehtimerd= pd.DataFrame((dwellingsrd.values*tratimerd.values), columns=dwellingsrd.columns, index=dwellingsrd.index)
+
+    print(f'\nTable of Invehicle waiting time (min) G-A:\n',invehtimerd.to_string())
+    #invehtimerd= np.ceil(invehtimerd.sum())
+    Totalinvehtimerd= np.ceil(invehtimerd.sum(axis=1))
+    print(f'Total Invehicle waiting time G-A (min) is :',Totalinvehtimerd)
+    print("heeeee")
+
+    # IMPORTANT In VEHICLE TRAVEL TIME
+    #---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    #                                                           3.2.2 WAITING TIME, FAILS TO BOARD, TRAVEL TIME + PENALTY  AIRPORT TO GARIA
+
+    #-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    #-----------------------------------------------------------PASSENEGR WAITING-----------------------------------------------------------------------------
+
+    arrivalratedr= passengerarrivaldr/(hrinperiod*60)
+    #print(arrivalrate)passengerarrivaldr
+
+    pass_arrivingdr= arrivalratedr[:].multiply(headwaydr, axis="index")      #IMPORTANT CODE for Single column of headwayrd2 multiplied with multiple column of arrivalrate
+    pass_arrivingdr=np.ceil(pass_arrivingdr[:].multiply(frequencydr, axis="index")*hrinperiod)
+    print(f'\nTable of Passenger arriving at bus stops A-G:\n',pass_arrivingdr.to_string())
+
+    Tot_pass_arrivingdr= np.ceil(pass_arrivingdr.sum(axis = 1, skipna= True))
+    #Tot_pass_arrivingrd= np.ceil(Tot_pass_arrivingrd.sum(axis = 0, skipna= True))
+    print(f'\n--------------------------------------------------------------------')
+    print(f'No. of Passengers arriving at Bus stops A-G is :',Tot_pass_arrivingdr)
+    print(f'--------------------------------------------------------------------')
+    #---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    #-----------------------------------------------------------PASSENGER LOST--------------------------------------------------------------------------------
+
+    #print(dwelling)
+    #  IMP CODE to sum of all row wise Total dwelling= np.floor(dwelling.sum(axis = 1, skipna= True))
+
+    pass_boardingdr= (boarddr[:].multiply(pass_arrivingdr, axis="index"))
+    #pass_boarding= (pass_boarding[:].multiply(freqrd2, axis="index"))
+
+    pass_alightingdr= (alightdr[:].multiply(pass_arrivingdr, axis="index"))
+    #pass_alighting= (pass_alighting[:].multiply(freqrd2, axis="index"))
+
+    #print(f'Passenger boarding at all stops',pass_boardingrd)
+    #print(f'Passenger Alighting at all stops',pass_alightingrd)
+
+    dwellingsdr=pass_boardingdr-pass_alightingdr
+    #freqdr[freqdr>frequencydefault] = frequencydefault
+
+    #dwellingsrd= dwellingsrd[:].multiply(frequencyrd, axis="index")*hrinperiod
+
+    dwellingsdr=abs(np.ceil(dwellingsdr.cumsum(axis = 1, skipna = True)))
+
+
+    for i in range(0, len(dwellingsdr.index)):
+        for j in range(0, len(dwellingsdr.columns)):
+            if dwellingsdr.iloc[i,j]>=(cob*(frequencydr[i])):
+                dwellingsdr.iloc[i,j]=(cob*(frequencydr[i]))
+            else:
+                pass
+
+    #####dwellingsrd=dwellingsrd.sum(axis = 1, skipna= True)
+    print(f'\nTable of No.of people able to board the bus A-G:\n',dwellingsdr.to_string())
+
+
+
+    Totdwellingsdr=dwellingsdr.sum(axis = 1, skipna= True)
+    print(f'No of people who can board is :',Totdwellingsdr)
+
+    passcantboarddr=pass_arrivingdr-dwellingsdr
+    passcantboarddr[passcantboarddr<0] = 0
+
+    print(f"\nTable of people who can't board is :\n",(passcantboarddr).to_string())
+
+
+    #print(f'\nNo of people who cant board is',passcantboardrd)
+
+    Totpasscantboarddr= abs(np.ceil(passcantboarddr).sum(axis = 1, skipna= True))
+    #Totpasscantboardrd[Totpasscantboardrd<0] = 0
+    print(f"Total No of people who can't board the bus due to crowding A-G is :",Totpasscantboarddr)
+    #IMPORTANT PASSENGER LOST
+    #---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+    #-----------------------------------------------------------TOTAL PASSENGER WAITING-----------------------------------------------------------------------
+    #print(f'this one',headwayrd)
+    #print(Tot_pass_arrivingrd)
+    #print(arrivalraterd)
+
+
+    #Tot_pass_wait_timerd= 1/2 * (arrivalraterd[:]).multiply(headwayrd, axis="index") + Totpasscantboardrd
+
+    pass_wait_timedr= 0.5*(arrivalratedr[:]).multiply(headwaydr, axis="index")  #+passcantboardrd
+    pass_wait_timedr= (pass_wait_timedr[:]).multiply(headwaydr, axis="index")
+    pass_wait_timedr=pass_wait_timedr+passcantboarddr
+
+    print(f"\nTable of time passengers are spending while waiting for bus A-G (min) :\n",pass_wait_timedr.to_string())
+    Tot_pass_wait_timedr=pass_wait_timedr.sum(axis = 1, skipna= True)
+    #Tot_pass_wait_timerd=Tot_pass_wait_timerd.sum(axis = 0, skipna= True)
+    print(f'Total passenger waiting time (min) A-G is :',Tot_pass_wait_timedr.round(0))
+    #IMPORTANT TOTAL PASSENGER WAITING
+    #---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+    #-----------------------------------------------------------In VEHICLE TRAVEL TIME------------------------------------------------------------------------
+
+    #invehtime= dwelling.mul(distancerd)
+
+    #value_of_time= pd.read_csv(r'C:\Users\Ashish\Documents\IIT\thesis\PYTHON\DATABASE\valueoftimerd.csv').set_index('Value of Time (Raipur - Durg) (Rupee)')
+
+    invehtimedr= pd.DataFrame((dwellingsdr.values*tratimedr.values), columns=dwellingsdr.columns, index=dwellingsdr.index)
+
+    print(f'\nTable of Invehicle waiting time (min) A-G:\n',invehtimedr.to_string())
+    #invehtimerd= np.ceil(invehtimerd.sum())
+    Totalinvehtimedr= np.ceil(invehtimedr.sum(axis=1))
+    print(f'Total Invehicle waiting time A-G (min) is :',Totalinvehtimedr)
+    print("heeeee")
 
  # IMPORTANT In VEHICLE TRAVEL TIME
 #---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -924,16 +923,16 @@ num_generations = 5
 for generation in range(num_generations):
     print("\nGeneration : ", generation)
     # Measuring the fitness of each chromosome in the population.
-    fitness = ga.cal_pop_fitness(equation_inputs, new_populationrd)
+    fitness = cal_pop_fitness(equation_inputs, new_populationrd)
 
     # Selecting the best parents in the population for mating.
-    parents = ga.select_mating_pool(new_populationrd, fitness, num_parents_mating)
+    parents = select_mating_pool(new_populationrd, fitness, num_parents_mating)
 
     # Generating next generation using crossover.
-    offspring_crossover = ga.crossover(parents, offspring_size=(pop_size[0]-parents.shape[0], num_weights))
+    offspring_crossover = crossover(parents, offspring_size=(pop_size[0]-parents.shape[0], num_weights))
 
     # Adding some variations to the offsrping using mutation.
-    offspring_mutation = ga.mutation(offspring_crossover)
+    offspring_mutation = mutation(offspring_crossover)
 
     # Creating the new population based on the parents and offspring.
     new_populationrd[0:parents.shape[0], :] = parents
@@ -960,7 +959,7 @@ for generation in range(num_generations):
 
 # Getting the best solution after iterating finishing all generations.
 # At first, the fitness is calculated for each solution in the final generation.
-fitness = ga.cal_pop_fitness(equation_inputs, new_populationrd)
+fitness = cal_pop_fitness(equation_inputs, new_populationrd)
 # Then return the index of that solution corresponding to the best fitness.
 best_match_idx = np.where(fitness == np.min(fitness))
 best_match_idx=best_match_idx
@@ -1113,7 +1112,7 @@ frequencydr=optimisedfreqrd['Optimised Frequency G-B']
 #                                                           2.1.1 Departure time calculation   GARIA AIRPORT
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-timeo_periodrd= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\tmeperiodDN.csv", header=0)
+timeo_periodrd= pd.read_csv("data/tmeperiodDN.csv", header=0)
 #print(time_periodrd)
 timeo_periodrd['frequency']= frequencyrd.values
 #print(frequencyrd)
@@ -1157,7 +1156,7 @@ for ind,col in timeo_periodrd.iterrows():
 #                                                           2.1.2 Departure time calculation  AIRPORT GARIA
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-timeo_perioddr= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\tmeperiodUP.csv", header=0)
+timeo_perioddr= pd.read_csv("data/tmeperiodUP.csv", header=0)
 #print(time_perioddr)
 timeo_perioddr['frequency']= frequencydr.values
 #print(time_perioddr)
@@ -1194,7 +1193,7 @@ for ind,col in timeo_perioddr.iterrows():
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 #                                                           2.2.1 Travel time GARIA AIRPORT
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
-traveltimerd= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\TravelTimeDN.csv")
+traveltimerd= pd.read_csv("data/TravelTimeDN.csv")
 traveltimerd.drop('Travel Time', axis=1, inplace= True)
 sumtraveltimerd=traveltimerd.sum(axis = 1, skipna= True)
 
@@ -1209,7 +1208,7 @@ for ind in range(0,len(sumtraveltimerd.index)):
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 #                                                           2.2.2 Travel time  AIRPORT GARIA
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
-traveltimedr= pd.read_csv(r"D:\S21 Data\Database for timetable prediction\TravelTimeUP.csv")
+traveltimedr= pd.read_csv("data/TravelTimeUP.csv")
 traveltimedr.drop('Travel Time', axis=1, inplace= True)
 sumtraveltimedr=traveltimedr.sum(axis = 1, skipna= True)
 #print(traveltimedr.to_string())
@@ -1306,4 +1305,4 @@ print(f'\n---------------------------------------\n'
       f'Vehicle Operation Details and Costing :'
       f'\n---------------------------------------')
 print(f'\nNo. of Bus required at Bag bazaar Depot :',busreq_at_raipur,'\nNo. of Bus required at Garia Depot:',busreq_at_durg,'\n\nNo. of Bus reutilized from Pool at Bag Bazaar :',poolsize_at_raipur,"\nNo. of Bus reutilized from Pool at Garia :", poolsize_at_durg)
-
+print("ending sitty code")
