@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
 from Genetic_algo import cal_pop_fitness, select_mating_pool, crossover, mutation
-import scipy.stats
 from matplotlib import pyplot as plt
 import datetime as dt
 import yaml 
+import os
 
 def load_yaml(file_name):
     with open(file_name, 'r') as ymlfile:
@@ -710,11 +710,15 @@ if __name__ == "__main__":
     print(f'\nOverall cost of running a bus service in Bag bazaar to Garia  direction is:     ₹\n',costoverallrd)#.round(0))
     print(f'Overall cost of running a bus service in  Garia to Bag bazaar direction is:     ₹\n',costoveralldr)#.round(0))
 
-    file_name= 'cost of running a bus service in Bag bazaar to Garia .xlsx'
-    costoverallrd.to_excel('cost of running a bus service in Bag bazaar to Garia .xlsx')
+# check if folder results exists else create it
+    if not os.path.exists('results'):
+        os.makedirs('results')
+
+    file_name= 'results/cost of running a bus service in Bag bazaar to Garia .xlsx'
+    costoverallrd.to_excel('results/cost of running a bus service in Bag bazaar to Garia .xlsx')
 
     file_name= 'cost of running a bus service in Garia to Bag bazaar  .xlsx'
-    costoveralldr.to_excel('cost of running a bus service in Garia to Bag bazaar .xlsx')
+    costoveralldr.to_excel('results/cost of running a bus service in Garia to Bag bazaar .xlsx')
 
     overallcost=pd.concat([costoverallrd.iloc[:,2], costoveralldr.iloc[:,2]],axis=0)
     print(overallcost)
@@ -975,7 +979,7 @@ if __name__ == "__main__":
 
     #print(optimisedfreqrd)
     file_name = 'optimised frequency and headway.xlsx'
-    optimisedfreqrd.to_excel('optimised frequency and headway.xlsx')
+    optimisedfreqrd.to_excel('results/optimised frequency and headway.xlsx')
 
     print(optimisedfreqrd.to_string())
 
@@ -1161,7 +1165,7 @@ if __name__ == "__main__":
         f'Vehicle timetable as per Optimised Frequency :'
         f'\n--------------------------------------------\n',departuretime.sort_index(ascending=True).to_string())        #.to_string() is to Show all content  in the result window.  IMPORTANT TO KNOW
     file_name= 'optimized timetable.xlsx'
-    departuretime.to_excel('optimized timetable.xlsx')
+    departuretime.to_excel('results/optimized timetable.xlsx')
 
 
     #-------------------------------------------------------------------------------------------------------------------------------------------------------
