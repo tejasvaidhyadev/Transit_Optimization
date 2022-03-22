@@ -1,0 +1,17 @@
+A: Bag bazaar
+B: Garia
+frequencydefault: 2         # Default frequency of Bus
+dob: 43                    # Desired occupancy of bus
+cob: 107                    # Capacity of bus 2.5 # crowding fact
+buscost: 7000000             # Cost of bus (including loan interest)
+buslifecycle: 800000         # No. of years a bus would be operational
+crewperbus: 2                # No. of crew required per bus (including support staff)
+creqincome: 27500           # Average monthly wage of crew members (Driver, Operator, Technicians)
+busmaintenance: 5         # Bus maintenance cost per km run
+fuelprice: 88                # Fuel cost
+kmperliter: 5                # Mileage
+costunit_cantboard: 7        # Cost incurred by user for not been able to board
+costunit_waitingtime: 0.8  # Waiting at bus stop cost incurred by user
+costunit_invehtime: 0.4    # Invehicle traveltime cost incurred by user
+penalty: 7                   # Operator part of penalty for loosing a bus passenger
+hrinperiod: 1                # Length of a period, value means no of hours inn
