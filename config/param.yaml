@@ -1,5 +1,5 @@
-A: Bag bazaar
-B: Garia
+A: "Bag bazaar"
+B: "Garia"
 frequencydefault: 2         # Default frequency of Bus
 dob: 43                    # Desired occupancy of bus
 cob: 107                    # Capacity of bus 2.5 # crowding fact

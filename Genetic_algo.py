@@ -41,3 +41,37 @@ def mutation(offspring_crossover, num_mutations=1):
             offspring_crossover[idx, gene_idx] = offspring_crossover[idx, gene_idx] + random_value
             gene_idx = gene_idx + mutations_counter
     return offspring_crossover
+
+# Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+
+# An input string is valid if:
+
+# Open brackets must be closed by the same type of brackets.
+# Open brackets must be closed in the correct order.
+
+class Solution(object):
+    def isValid(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        stack = []
+        for i in range(len(s)):
+            if s[i] == '(' or s[i] == '[' or s[i] == '{':
+                stack.append(s[i])
+            else:
+                if len(stack) == 0:
+                    return False
+                else:
+                    if s[i] == ')' and stack[-1] == '(':
+                        stack.pop()
+                    elif s[i] == ']' and stack[-1] == '[':
+                        stack.pop()
+                    elif s[i] == '}' and stack[-1] == '{':
+                        stack.pop()
+                    else:
+                        return False
+        if len(stack) == 0:
+            return True
+        else:
+            return False
